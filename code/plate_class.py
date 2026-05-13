@@ -1,14 +1,19 @@
 
 
+# %% imports
+
 import os
 import subprocess
 import json
 from pathlib import Path
+import shutil
 # from projects.pre_post_bridging.datadelvetools_script import analyze_plate
 from src.alter_plate import *
 
-
+#%% constants
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
+# %% plate class definition
 
 class plate_class:
 
@@ -348,24 +353,58 @@ class plate_class:
         return False
 
 
+# %% helper functions
+
 def plate_generation(plate_id, transform_scanner_config, transform_scanner_method, update_config_file_params, output_json_path, adat_path):
+    '''Function to execute the full plate processing pipeline for a single plate.
+    
+    Parameters    ----------
+    plate_id : str
+        Identifier for the plate to be processed.
+        transform_scanner_config : list
+        Configuration parameters for transforming scanner files, expected to include:
+            - plate_path: Path to the original plate data directory.
+            - workbook_path: Path to the plate's workbook file.
+            - param_dict_path: Path to the JSON file containing transformation parameters.
+            - new_plate_path: Path where the transformed plate data should be saved.
+            transform_scanner_method : str
+            Method to use for transforming scanner files (e.g., 'MAD', 'linear_regression').
+            update_config_file_params : dict
+            Parameters for updating the configuration file, expected to include keys such as:
+                - input_template_path: Path to the input JSON template file.
+                - output_json_path: Path where the updated JSON configuration file should be written.
+                - adat_path: Base output directory for ADAT results.
+                - somamer_reference_source: Path to the SOMAmer reference source file.
+                - workdir_path: Base working directory containing plate-specific files.
+                - site_id: Site identifier to write to the 'SiteId' field.
+                - study_id: Study identifier to write to the '!StudyId' field.
+                - lot: Master mix lot identifier to write to the '!MasterMixLot' field.
+                - platescale_reference_source: Reference source for 'plateScale' analysis steps.
+                - calibrate_reference_source: Reference source for 'calibrate' analysis steps.
+                - anml_qc_reference_source: Reference source for 'anmlQC' analysis steps.
+                - qc_reference_source: QC reference source for 'qcCheck' analysis steps.
+                - anml_smp_reference_source: Reference source for 'anmlSMP' analysis steps.
+    output_json_path : str
+        Path where the updated JSON configuration file should be written.
+    adat_path : str
+        Base output directory for ADAT results. The function will set '!OutputDirectory' to '<adat_path>/<plate_id>'.
+        
+    Returns
+    -------
+        None
+        The function performs in-place transformations and updates, and does not return a value. It generates
+        output files and prints status messages indicating the progress of each step.
+        
+        '''
     plate = plate_class(plate_id)
     plate.transform_scanner_files(*transform_scanner_config, method=transform_scanner_method)
     plate.update_config_file(**update_config_file_params)
     plate.adat_generation('somalogic/datadelvetools', output_json_path, adat_path=adat_path)     
-
-
-if __name__ == "__main__":
-    print("Testing plate_class")
     
-    workdir_path=f"somalogic/workdir/original_with_altered_workbooks"
-    new_workdir_path = f"somalogic/workdir/lr"
     
-    plates_lot1 = [f'OH2025_05{num}' for num in range(1, 8)]
-    plates_lot1 += [f'OH2026_00{num}' for num in range(1, 6)]
-    for plate_id in plates_lot1:
-        
-        # %% Constants per plate
+def generate_config_data(plate_id, workdir_path, new_workdir_path):
+        '''Generate configuration data for a specific plate.'''
+        # TODO: add more parameters to this function as needed, and update the function call in the main block accordingly
         output_json_path=f'somalogic/output/test/{plate_id}/V4.1_plasma_7KL1.json'
         adat_path=f'somalogic/adat/test/lr/{plate_id}'
         transform_scanner_config = [os.path.join(workdir_path, plate_id), 
@@ -389,8 +428,34 @@ if __name__ == "__main__":
                             'anml_qc_reference_source': 'references/7KL1/plasma/Reference_V4.1_Plasma_ANML.txt',
                             'qc_reference_source': 'references/7KL1/plasma/Reference_V4.1_Plasma_QC_ANML_200170.txt',
                             'anml_smp_reference_source': 'references/7KL1/plasma/Reference_V4.1_Plasma_ANML.txt'}
+        return transform_scanner_config, transform_scanner_method, update_config_file_params, output_json_path, adat_path
+    
+    
+def delete_path(path_to_delete=Path('somalogic/adat')):
+    """Warning: Deletes a specified directory and all its contents."""
+    if path_to_delete.exists():
+        shutil.rmtree(path_to_delete)
+    else:
+        print(f"Path to delete not exist: {path_to_delete}")
+        
+
+
+if __name__ == "__main__":
+    print("Testing plate_class")
+    
+    delete_path(Path('somalogic/adat')) # DELETES path - BE CAREFUL with this function, it will delete the entire path provided!
+    
+    workdir_path=f"somalogic/workdir/original_with_altered_workbooks"
+    new_workdir_path = f"somalogic/workdir/lr"
+    
+    plates_lot1 = [f'OH2025_05{num}' for num in range(1, 8)]
+    plates_lot1 += [f'OH2026_00{num}' for num in range(1, 6)]
+    for plate_id in plates_lot1:
+        
+        # %% Constants per plate
+        transform_scanner_config, transform_scanner_method, update_config_file_params, output_json_path, adat_path = generate_config_data(plate_id, workdir_path, new_workdir_path)
         
         print(os.getcwd())
-        if plate_id== 'OH2025_054':
+        if plate_id== 'OH2025_054': # It runs only this plate for testing purposes, but the loop is set to run all plates in lot 1
             plate_generation(plate_id, transform_scanner_config, transform_scanner_method, update_config_file_params, output_json_path, adat_path)
    
