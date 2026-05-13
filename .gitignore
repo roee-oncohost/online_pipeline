@@ -2,5 +2,7 @@ online_env/
 env_op/
 modeling/
 somalogic/
+data/
 clean_code.egg-info/
+*.pyc
 

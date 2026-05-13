@@ -1,5 +1,6 @@
 
 
+import os
 import subprocess
 import json
 from pathlib import Path
@@ -345,45 +346,51 @@ class plate_class:
                     return True
         print(f"Failed to process plate {self.plate_id}")
         return False
-            
+
+
+def plate_generation(plate_id, transform_scanner_config, transform_scanner_method, update_config_file_params, output_json_path, adat_path):
+    plate = plate_class(plate_id)
+    plate.transform_scanner_files(*transform_scanner_config, method=transform_scanner_method)
+    plate.update_config_file(**update_config_file_params)
+    plate.adat_generation('somalogic/datadelvetools', output_json_path, adat_path=adat_path)     
+
+
 if __name__ == "__main__":
     print("Testing plate_class")
     
     workdir_path=f"somalogic/workdir/original_with_altered_workbooks"
     new_workdir_path = f"somalogic/workdir/lr"
     
-    plates = [f'OH2025_05{num}' for num in range(1, 8)]
-    plates += [f'OH2026_00{num}' for num in range(1, 6)]
-    for plate_id in plates:
+    plates_lot1 = [f'OH2025_05{num}' for num in range(1, 8)]
+    plates_lot1 += [f'OH2026_00{num}' for num in range(1, 6)]
+    for plate_id in plates_lot1:
+        
+        # %% Constants per plate
         output_json_path=f'somalogic/output/test/{plate_id}/V4.1_plasma_7KL1.json'
         adat_path=f'somalogic/adat/test/lr/{plate_id}'
-        if plate_id== 'OH2025_054':
-            
-            plate = plate_class(plate_id)
-            plate.transform_scanner_files(os.path.join(workdir_path, plate_id), 
+        transform_scanner_config = [os.path.join(workdir_path, plate_id), 
                                         os.path.join(workdir_path, plate_id, f"{plate_id} Workbook.xlsx"), 
                                         {'Streck': 'data/params/pre_normalization/ds_lr_30042026.json',
                                          'NDS': 'data/params/pre_normalization/nds_lr_30042026.json'},                                        
                                         # {'ignore 1': 'data/params/pre_normalization/ds_lr_30042026.json',
                                         #  'ignore 2': 'data/params/pre_normalization/nds_lr_30042026.json'},
-                                        os.path.join(new_workdir_path, plate_id), method='linear_regression')
-            plate.update_config_file( 
-                            input_template_path='somalogic/output/lot1_prehybridization_median/OH2025_053/V4.1_plasma_7KL1.json', 
-                            output_json_path=output_json_path, 
-                            adat_path=adat_path,
-                            somamer_reference_source="references/7KL1/SD4.1ReV_7K_Annotated_SOMAmers.xlsx",
-                            workdir_path=new_workdir_path,                    
-                            site_id=f'{plate_id}',
-                            study_id=f'{plate_id}', 
-                            lot='1',
-                            platescale_reference_source='references/7KL1/plasma/Reference_Cal_200169_Plasma_V4.1_Lot1.txt',
-                            calibrate_reference_source='references/7KL1/plasma/Reference_Cal_200169_Plasma_V4.1_Lot1.txt',
-                            anml_qc_reference_source='references/7KL1/plasma/Reference_V4.1_Plasma_ANML.txt',
-                            qc_reference_source='references/7KL1/plasma/Reference_V4.1_Plasma_QC_ANML_200170.txt',
-                            anml_smp_reference_source='references/7KL1/plasma/Reference_V4.1_Plasma_ANML.txt')
-
-
-            # plate.transform_scanner_files(os.path.join('somalogic/workdir/test', plate_id),)
-            plate.adat_generation('somalogic/datadelvetools', output_json_path, adat_path=adat_path)            
-    
+                                        os.path.join(new_workdir_path, plate_id)]
+        transform_scanner_method = 'linear_regression'
+        update_config_file_params = {'input_template_path': 'somalogic/output/lot1_prehybridization_median/OH2025_053/V4.1_plasma_7KL1.json', 
+                            'output_json_path': output_json_path, 
+                            'adat_path': adat_path,
+                            'somamer_reference_source': "references/7KL1/SD4.1ReV_7K_Annotated_SOMAmers.xlsx",
+                            'workdir_path': new_workdir_path,                    
+                            'site_id': f'{plate_id}',
+                            'study_id': f'{plate_id}', 
+                            'lot': '1',
+                            'platescale_reference_source': 'references/7KL1/plasma/Reference_Cal_200169_Plasma_V4.1_Lot1.txt',
+                            'calibrate_reference_source': 'references/7KL1/plasma/Reference_Cal_200169_Plasma_V4.1_Lot1.txt',
+                            'anml_qc_reference_source': 'references/7KL1/plasma/Reference_V4.1_Plasma_ANML.txt',
+                            'qc_reference_source': 'references/7KL1/plasma/Reference_V4.1_Plasma_QC_ANML_200170.txt',
+                            'anml_smp_reference_source': 'references/7KL1/plasma/Reference_V4.1_Plasma_ANML.txt'}
+        
+        print(os.getcwd())
+        if plate_id== 'OH2025_054':
+            plate_generation(plate_id, transform_scanner_config, transform_scanner_method, update_config_file_params, output_json_path, adat_path)
    
