@@ -473,7 +473,7 @@ if __name__ == "__main__":
     post_anml_prophet_edta_df = pd.read_csv(f"{source_folder}/post_anml_prophet_edta.csv")
     matched_edta_ds_df = pd.read_csv(f"{source_folder}/matched_edta_ds.csv")
     matched_edta_nds_df = pd.read_csv(f"{source_folder}/matched_edta_nds.csv")
-    save_path = "results/lr_cohorts/test_evaluation"
+    save_path = "results/test_evaluation/lr"
     plot_confusion_matrix(
     matched_edta_ds_df['PROphetResult_edta'],
     matched_edta_ds_df['PROphetResult_ds'],
@@ -498,14 +498,14 @@ if __name__ == "__main__":
     scatter_with_regression(matched_edta_ds_df['PROphetScore_edta'], matched_edta_ds_df['PROphetScore_ds'],
                             xlabel="EDTA PROphet Score",
                             ylabel="DS PROphet Score",
-                            title="EDTA vs DS Scatter Plot with MAD-Med",
+                            title="EDTA vs DS Scatter Plot with Linear Regression",
                             save_path=save_path,
                             plot_name="scatter_edta_ds")
     
     scatter_with_regression(matched_edta_nds_df['PROphetScore_edta'], matched_edta_nds_df['PROphetScore_nds'],
                             xlabel="EDTA PROphet Score",
                             ylabel="NDS PROphet Score",
-                            title="EDTA vs NDS Scatter Plot with MAD-Med",
+                            title="EDTA vs NDS Scatter Plot with Linear Regression",
                             save_path=save_path,
                             plot_name="scatter_edta_nds")
     
