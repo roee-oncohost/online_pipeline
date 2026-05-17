@@ -2,4 +2,8 @@ online_env/
 modeling/
 somalogic/
 clean_code.egg-info/
+data/
+results/
+
+__pycache__/
 

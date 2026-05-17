@@ -356,14 +356,14 @@ if __name__ == "__main__":
     plates += [f'OH2026_00{num}' for num in range(1, 6)]
     for plate_id in plates:
         output_json_path=f'somalogic/output/test/{plate_id}/V4.1_plasma_7KL1.json'
-        adat_path=f'somalogic/adat/test/lr/{plate_id}'
-        if plate_id== 'OH2025_054':
+        adat_path=f'somalogic/adat/test/lr/roee_params/{plate_id}'
+        if plate_id:# == 'OH2025_054':
             
             plate = plate_class(plate_id)
             plate.transform_scanner_files(os.path.join(workdir_path, plate_id), 
                                         os.path.join(workdir_path, plate_id, f"{plate_id} Workbook.xlsx"), 
-                                        {'Streck': 'data/params/pre_normalization/ds_lr_30042026.json',
-                                         'NDS': 'data/params/pre_normalization/nds_lr_30042026.json'},                                        
+                                        {'Streck': 'data/params/pre_normalization/ds_lr_roee_14052026.json',
+                                         'NDS': 'data/params/pre_normalization/nds_lr_roee_14052026.json'},                                        
                                         # {'ignore 1': 'data/params/pre_normalization/ds_lr_30042026.json',
                                         #  'ignore 2': 'data/params/pre_normalization/nds_lr_30042026.json'},
                                         os.path.join(new_workdir_path, plate_id), method='linear_regression')
@@ -384,6 +384,6 @@ if __name__ == "__main__":
 
 
             # plate.transform_scanner_files(os.path.join('somalogic/workdir/test', plate_id),)
-            plate.adat_generation('somalogic/datadelvetools', output_json_path, adat_path=adat_path)            
+            # plate.adat_generation('somalogic/datadelvetools', output_json_path, adat_path=adat_path)            
     
    

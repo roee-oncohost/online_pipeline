@@ -300,7 +300,7 @@ if __name__ == "__main__":
     rfus_path = 'data/excels/20260412_adat_data_measurements.csv' # 'data/adat/base/v_175_OH2026_013.parquet'
     info_path = 'data/excels/20260406_adat_data_samples_with_sample_info.csv'
     
-    adats_path = 'somalogic/adat/test/lr'
+    adats_path = 'somalogic/adat/lr'
     model_path = 'data/models/DCB_nosex_gamma1_rescaled.pkl'
     matched_samples_path = 'data/excels/26042026_streck_long_summary.xlsx'
   
